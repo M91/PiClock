@@ -410,7 +410,7 @@ function toggleNight(){
 		iconDiv = document.getElementById("curIcon"),
 		hr = (new Date()).getHours();
 
-	if (hr >= 7 && 20 < hr) {
+	if (hr >= 7 || hr < 20) {
 		nightMode = false;
 
 		mainDiv.style.backgroundColor = '';
