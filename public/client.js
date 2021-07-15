@@ -195,7 +195,7 @@ function initMap() {
 
 		}
 		for (i = 0;i < 5;i++) {
-			if (i == radarFrame) {
+			if (i === radarFrame) {
 				map.overlayMapTypes.getAt(i).setOpacity(.6);
 			} else {
 				map.overlayMapTypes.getAt(i).setOpacity(0);
@@ -212,7 +212,7 @@ function initMap() {
 }
 
 
-if (backgroundImg !="") {
+if (backgroundImg !=="") {
 	mainDiv = document.getElementById("main");
 	mainDiv.style.backgroundImage = "url("+backgroundImg+")";
 	mainDiv.style.backgroundSize ="cover";
@@ -224,31 +224,32 @@ updateCur();
 updateForecast();
 updateAlerts();
 
-if (clockType=="digital") { setInterval(updateClock, 1000)}; // tick the
-//clock every
-//second
+if (clockType === "digital") { setInterval(updateClock, 1000)}
+/*
+ * tick the
+ * clock every
+ * second
+ */
 setInterval(updateCur, 10000); // every ten seconds update current conditions
 //from cache
 setInterval(updateForecast, 600000) // update the forecast every 10 min
 setInterval(updateAlerts,60000);  // update alerts every minute
+setInterval(toggleNight, 10000 * 60);//Check if its time to go to or out of nightmode every 10 min
 
 function updateClock() {
 	// update date string
 	var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: tz };
-	var date = new Intl.DateTimeFormat('en-us',options).format(timeStamp);
-	document.getElementById("date").textContent = date;
+	document.getElementById("date").textContent = new Intl.DateTimeFormat('en-us', options).format(timeStamp);
 
 	// depending on analog vs digital, update clock
-	if (clockType=="digital") {
-		var timeStamp = new Date();
-		var time = new Date().toLocaleTimeString("en-us", {
-			hour : '2-digit',
-			minute : '2-digit',
-			hour12 : 'true',
-			timeZone : tz
-		});
-		
-		var timearr	 = time.split(" ");
+	if (clockType === "digital") {
+		var timeStamp = new Date(),
+			time = new Date().toLocaleTimeString("en-us", {
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: 'true',
+			timeZone: tz
+		}), timearr = time.split(" ");
 		document.getElementById("time").textContent = timearr[0];
 	} else {
 		// insert analog script here. Thinking I might move that off of
@@ -282,7 +283,7 @@ function updateCur() {
 			timeZone : tz
 		});
 
-		if (data.pressureTrend == 1 || data.pressureTrend == null) {
+		if (data.pressureTrend === 1 || data.pressureTrend == null) {
 			presTrendIcon = '<i class="fas fa-circle"></i>';
 		} else if (data.pressureTrend < 1) {
 			presTrendIcon = '<i class="fas fa-chevron-down"></i>';
@@ -338,7 +339,7 @@ function updateForecast() {
 			var forecastImage = document.createElement("div");
 			forecastImage.setAttribute("class","forecastImage");
 			forecastImage.setAttribute("id","imgDiv"+i);
-			if (nightMode == true) {
+			if (nightMode === true) {
 				forecastImage.style.opacity = '.5';
 			}
 
@@ -365,7 +366,7 @@ function updateForecast() {
 			// put the block into the parent div
 			content.appendChild(forecastBlock);
 
-		};
+		}
 		// put populated block into the column
 		document.getElementById("col_3").innerHTML = "";
 		document.getElementById("col_3").appendChild(content);
@@ -374,7 +375,7 @@ function updateForecast() {
 		console.log(error);
 	});
 
-};
+}
 
 function updateAlerts(){
 	var alertDiv = document.getElementById("alerts");
@@ -395,7 +396,7 @@ function updateAlerts(){
 
 			// put the block into the parent div
 			alertDiv.appendChild(alertBlock);				
-		};
+		}
 
 	})
 	.catch(function(error){
@@ -404,18 +405,16 @@ function updateAlerts(){
 }
 
 function toggleNight(){
-	var mainDiv = document.getElementById("main");
-	var radarDiv = document.getElementById("rdrStack");
-	var iconDiv = document.getElementById("curIcon");
-	var col3Div = document.getElementById("col_3");
-	var col2Div = document.getElementById("col_2");
-	var timeDiv = document.getElementById("time");
+	var mainDiv = document.getElementById("main"),
+		radarDiv = document.getElementById("rdrStack"),
+		iconDiv = document.getElementById("curIcon"),
+		hr = (new Date()).getHours();
 
-	if (nightMode == true) {
+	if (hr >= 7 && 20 < hr) {
 		nightMode = false;
 
 		mainDiv.style.backgroundColor = '';
-		if (backgroundImg == "") {
+		if (backgroundImg === "") {
 			mainDiv.style.color = '';
 		} else {
 			mainDiv.style.backgroundImage = "url("+backgroundImg+")";
@@ -426,9 +425,6 @@ function toggleNight(){
 
 		radarDiv.style.opacity = '1';
 		iconDiv.style.opacity = '1';
-		col3Div.style.visibility = "";
-		col2Div.style.width = "48vw";
-		timeDiv.style.fontSize  = "15vh";
 
 		url="http://127.0.0.1:8081/day";
 		var xhttp = new XMLHttpRequest();
@@ -439,7 +435,7 @@ function toggleNight(){
 		xhttp.send();
 
 
-	} else {
+	} else if (hr >= 20 || hr < 7){
 		nightMode = true;
 
 		mainDiv.style.backgroundColor = 'black';
@@ -448,9 +444,6 @@ function toggleNight(){
 
 		radarDiv.style.opacity ='.5';
 		iconDiv.style.opacity = '.5';
-		col3Div.style.visibility = "hidden";
-		col2Div.style.width = "79vw";
-		timeDiv.style.fontSize  = "27vh";
 
 		url="http://127.0.0.1:8081/night";
 		var xhttp = new XMLHttpRequest();
